@@ -858,37 +858,7 @@ func ExampleFpdf_ImageOptions() {
 	// Successfully generated pdf/Fpdf_ImageOptions.pdf
 }
 
-// ExampleFpdf_RegisterImageOptionsReader demonstrates how to load an image
-// from a io.Reader (in this case, a file) and register it with options.
-func ExampleFpdf_RegisterImageOptionsReader() {
-	var (
-		opt    gofpdf.ImageOptions
-		pdfStr string
-		fl     *os.File
-		err    error
-	)
-
-	pdfStr = example.Filename("Fpdf_RegisterImageOptionsReader")
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.AddPage()
-	pdf.SetFont("Arial", "", 11)
-	fl, err = os.Open(example.ImageFile("logo.png"))
-	if err == nil {
-		opt.ImageType = "png"
-		opt.AllowNegativePosition = true
-		_ = pdf.RegisterImageOptionsReader("logo", opt, fl)
-		fl.Close()
-		for x := -20.0; x <= 40.0; x += 5 {
-			pdf.ImageOptions("logo", x, x+30, 0, 0, false, opt, 0, "")
-		}
-		err = pdf.OutputFileAndClose(pdfStr)
-	}
-	example.Summary(err, pdfStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_RegisterImageOptionsReader.pdf
-}
-
-// This example demonstrates Landscape mode with images.
+// This examples demonstrates Landscape mode with images.
 func ExampleFpdf_SetAcceptPageBreakFunc() {
 	var y0 float64
 	var crrntCol int
@@ -948,7 +918,7 @@ func ExampleFpdf_SetAcceptPageBreakFunc() {
 	// Successfully generated pdf/Fpdf_SetAcceptPageBreakFunc_landscape.pdf
 }
 
-// This example tests corner cases as reported by the gocov tool.
+// This examples tests corner cases as reported by the gocov tool.
 func ExampleFpdf_SetKeywords() {
 	var err error
 	fileStr := example.Filename("Fpdf_SetKeywords")
@@ -1187,16 +1157,6 @@ func ExampleFpdf_ClipText() {
 	pdf.SetLineWidth(.1)
 	pdf.SetDrawColor(180, 180, 180)
 	pdf.ClipRoundedRect(10, y, 120, 20, 5, true)
-	pdf.RadialGradient(10, y, 120, 20, 255, 255, 255, 240, 240, 220,
-		0.25, 0.75, 0.25, 0.75, 0.5)
-	pdf.SetXY(5, y-5)
-	pdf.SetFont("Times", "", 12)
-	pdf.MultiCell(130, 5, lorem(), "", "", false)
-	pdf.ClipEnd()
-
-	y += 30
-	pdf.SetDrawColor(180, 100, 180)
-	pdf.ClipRoundedRectExt(10, y, 120, 20, 5, 10, 5, 10, true)
 	pdf.RadialGradient(10, y, 120, 20, 255, 255, 255, 240, 240, 220,
 		0.25, 0.75, 0.25, 0.75, 0.5)
 	pdf.SetXY(5, y-5)
@@ -2256,14 +2216,13 @@ func ExampleFpdf_AddSpotColor() {
 func ExampleFpdf_RegisterAlias() {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetFont("Arial", "", 12)
-	pdf.AliasNbPages("")
 	pdf.AddPage()
 
 	// Write the table of contents. We use aliases instead of the page number
 	// because we don't know which page the section will begin on.
 	numSections := 3
 	for i := 1; i <= numSections; i++ {
-		pdf.Cell(0, 10, fmt.Sprintf("Section %d begins on page {mark %d}", i, i))
+		pdf.Cell(0, 10, fmt.Sprintf("Section %d begins on page {%d}", i, i))
 		pdf.Ln(10)
 	}
 
@@ -2272,8 +2231,8 @@ func ExampleFpdf_RegisterAlias() {
 	// by the current page number.
 	for i := 1; i <= numSections; i++ {
 		pdf.AddPage()
-		pdf.RegisterAlias(fmt.Sprintf("{mark %d}", i), fmt.Sprintf("%d", pdf.PageNo()))
-		pdf.Write(10, fmt.Sprintf("Section %d, page %d of {nb}", i, pdf.PageNo()))
+		pdf.RegisterAlias(fmt.Sprintf("{%d}", i), fmt.Sprintf("%d", pdf.PageNo()))
+		pdf.Write(10, fmt.Sprintf("Section %d", i))
 	}
 
 	fileStr := example.Filename("Fpdf_RegisterAlias")
@@ -2281,40 +2240,6 @@ func ExampleFpdf_RegisterAlias() {
 	example.Summary(err, fileStr)
 	// Output:
 	// Successfully generated pdf/Fpdf_RegisterAlias.pdf
-}
-
-// ExampleFpdf_RegisterAlias_utf8 demonstrates how to use `RegisterAlias` to
-// create a table of contents. This particular example demonstrates the use of
-// UTF-8 aliases.
-func ExampleFpdf_RegisterAlias_utf8() {
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.AddUTF8Font("dejavu", "", example.FontFile("DejaVuSansCondensed.ttf"))
-	pdf.SetFont("dejavu", "", 12)
-	pdf.AliasNbPages("{entute}")
-	pdf.AddPage()
-
-	// Write the table of contents. We use aliases instead of the page number
-	// because we don't know which page the section will begin on.
-	numSections := 3
-	for i := 1; i <= numSections; i++ {
-		pdf.Cell(0, 10, fmt.Sprintf("Sekcio %d komenciĝas ĉe paĝo {ĉi tiu marko %d}", i, i))
-		pdf.Ln(10)
-	}
-
-	// Write the sections. Before we start writing, we use `RegisterAlias` to
-	// ensure that the alias written in the table of contents will be replaced
-	// by the current page number.
-	for i := 1; i <= numSections; i++ {
-		pdf.AddPage()
-		pdf.RegisterAlias(fmt.Sprintf("{ĉi tiu marko %d}", i), fmt.Sprintf("%d", pdf.PageNo()))
-		pdf.Write(10, fmt.Sprintf("Sekcio %d, paĝo %d de {entute}", i, pdf.PageNo()))
-	}
-
-	fileStr := example.Filename("Fpdf_RegisterAliasUTF8")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_RegisterAliasUTF8.pdf
 }
 
 // ExampleNewGrid demonstrates the generation of graph grids.
@@ -2377,7 +2302,6 @@ func ExampleFpdf_SetPageBox() {
 	// ~ pdfinfo -box pdf/Fpdf_PageBox.pdf
 	// Producer:       FPDF 1.7
 	// CreationDate:   Sat Jan  1 00:00:00 2000
-	// ModDate:   	   Sat Jan  1 00:00:00 2000
 	// Tagged:         no
 	// Form:           none
 	// Pages:          1
@@ -2684,241 +2608,4 @@ func ExampleUTF8CutFont() {
 	example.Summary(err, pdfFileStr)
 	// Output:
 	// Successfully generated pdf/Fpdf_UTF8CutFont.pdf
-}
-
-func ExampleFpdf_RoundedRect() {
-	const (
-		wd     = 40.0
-		hgap   = 10.0
-		radius = 10.0
-		ht     = 60.0
-		vgap   = 10.0
-	)
-	corner := func(b1, b2, b3, b4 bool) (cstr string) {
-		if b1 {
-			cstr = "1"
-		}
-		if b2 {
-			cstr += "2"
-		}
-		if b3 {
-			cstr += "3"
-		}
-		if b4 {
-			cstr += "4"
-		}
-		return
-	}
-	pdf := gofpdf.New("P", "mm", "A4", "") // 210 x 297
-	pdf.AddPage()
-	pdf.SetLineWidth(0.5)
-	y := vgap
-	r := 40
-	g := 30
-	b := 20
-	for row := 0; row < 4; row++ {
-		x := hgap
-		for col := 0; col < 4; col++ {
-			pdf.SetFillColor(r, g, b)
-			pdf.RoundedRect(x, y, wd, ht, radius, corner(row&1 == 1, row&2 == 2, col&1 == 1, col&2 == 2), "FD")
-			r += 8
-			g += 10
-			b += 12
-			x += wd + hgap
-		}
-		y += ht + vgap
-	}
-	pdf.AddPage()
-	pdf.RoundedRectExt(10, 20, 40, 80, 4., 0., 20, 0., "FD")
-
-	fileStr := example.Filename("Fpdf_RoundedRect")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_RoundedRect.pdf
-}
-
-// ExampleFpdf_SetUnderlineThickness demonstrates how to adjust the text
-// underline thickness.
-func ExampleFpdf_SetUnderlineThickness() {
-	pdf := gofpdf.New("P", "mm", "A4", "") // 210mm x 297mm
-	pdf.AddPage()
-	pdf.SetFont("Arial", "U", 12)
-
-	pdf.SetUnderlineThickness(0.5)
-	pdf.CellFormat(0, 10, "Thin underline", "", 1, "", false, 0, "")
-
-	pdf.SetUnderlineThickness(1)
-	pdf.CellFormat(0, 10, "Normal underline", "", 1, "", false, 0, "")
-
-	pdf.SetUnderlineThickness(2)
-	pdf.CellFormat(0, 10, "Thicker underline", "", 1, "", false, 0, "")
-
-	fileStr := example.Filename("Fpdf_UnderlineThickness")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_UnderlineThickness.pdf
-}
-
-// ExampleFpdf_Cell_strikeout demonstrates striked-out text
-func ExampleFpdf_Cell_strikeout() {
-
-	pdf := gofpdf.New("P", "mm", "A4", "") // 210mm x 297mm
-	pdf.AddPage()
-
-	for fontSize := 4; fontSize < 40; fontSize += 10 {
-		pdf.SetFont("Arial", "S", float64(fontSize))
-		pdf.SetXY(0, float64(fontSize))
-		pdf.Cell(40, 10, "Hello World")
-	}
-
-	fileStr := example.Filename("Fpdf_Cell_strikeout")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_Cell_strikeout.pdf
-}
-
-// ExampleFpdf_SetTextRenderingMode demonstrates rendering modes in PDFs.
-func ExampleFpdf_SetTextRenderingMode() {
-
-	pdf := gofpdf.New("P", "mm", "A4", "") // 210mm x 297mm
-	pdf.AddPage()
-	fontSz := float64(16)
-	lineSz := pdf.PointToUnitConvert(fontSz)
-	pdf.SetFont("Times", "", fontSz)
-	pdf.Write(lineSz, "This document demonstrates various modes of text rendering. Search for \"Mode 3\" "+
-		"to locate text that has been rendered invisibly. This selection can be copied "+
-		"into the clipboard as usual and is useful for overlaying onto non-textual elements such "+
-		"as images to make them searchable.\n\n")
-	fontSz = float64(125)
-	lineSz = pdf.PointToUnitConvert(fontSz)
-	pdf.SetFontSize(fontSz)
-	pdf.SetTextColor(170, 170, 190)
-	pdf.SetDrawColor(50, 60, 90)
-
-	write := func(mode int) {
-		pdf.SetTextRenderingMode(mode)
-		pdf.CellFormat(210, lineSz, fmt.Sprintf("Mode %d", mode), "", 1, "", false, 0, "")
-	}
-
-	for mode := 0; mode < 4; mode++ {
-		write(mode)
-	}
-	write(0)
-
-	fileStr := example.Filename("Fpdf_TextRenderingMode")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_TextRenderingMode.pdf
-}
-
-// TestIssue0316 addresses issue 316 in which AddUTF8FromBytes modifies its argument
-// utf8bytes resulting in a panic if you generate two PDFs with the "same" font bytes.
-func TestIssue0316(t *testing.T) {
-	pdf := gofpdf.New(gofpdf.OrientationPortrait, "mm", "A4", "")
-	pdf.AddPage()
-	fontBytes, _ := ioutil.ReadFile(example.FontFile("DejaVuSansCondensed.ttf"))
-	ofontBytes := append([]byte{}, fontBytes...)
-	pdf.AddUTF8FontFromBytes("dejavu", "", fontBytes)
-	pdf.SetFont("dejavu", "", 16)
-	pdf.Cell(40, 10, "Hello World!")
-	fileStr := example.Filename("TestIssue0316")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	pdf.AddPage()
-	if !bytes.Equal(fontBytes, ofontBytes) {
-		t.Fatal("Font data changed during pdf generation")
-	}
-}
-
-func TestMultiCellUnsupportedChar(t *testing.T) {
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.AddPage()
-	fontBytes, _ := ioutil.ReadFile(example.FontFile("DejaVuSansCondensed.ttf"))
-	pdf.AddUTF8FontFromBytes("dejavu", "", fontBytes)
-	pdf.SetFont("dejavu", "", 16)
-
-	defer func() {
-		if r := recover(); r != nil {
-			t.Errorf("unexpected panic: %v", r)
-		}
-	}()
-
-	pdf.MultiCell(0, 5, "😀", "", "", false)
-
-	fileStr := example.Filename("TestMultiCellUnsupportedChar")
-	pdf.OutputFileAndClose(fileStr)
-}
-
-// ExampleFpdf_SetTextRenderingMode demonstrates embedding files in PDFs,
-// at the top-level.
-func ExampleFpdf_SetAttachments() {
-	pdf := gofpdf.New("P", "mm", "A4", "")
-
-	// Global attachments
-	file, err := ioutil.ReadFile("grid.go")
-	if err != nil {
-		pdf.SetError(err)
-	}
-	a1 := gofpdf.Attachment{Content: file, Filename: "grid.go"}
-	file, err = ioutil.ReadFile("LICENSE")
-	if err != nil {
-		pdf.SetError(err)
-	}
-	a2 := gofpdf.Attachment{Content: file, Filename: "License"}
-	pdf.SetAttachments([]gofpdf.Attachment{a1, a2})
-
-	fileStr := example.Filename("Fpdf_EmbeddedFiles")
-	err = pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_EmbeddedFiles.pdf
-}
-
-func ExampleFpdf_AddAttachmentAnnotation() {
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.SetFont("Arial", "", 12)
-	pdf.AddPage()
-
-	// Per page attachment
-	file, err := ioutil.ReadFile("grid.go")
-	if err != nil {
-		pdf.SetError(err)
-	}
-	a := gofpdf.Attachment{Content: file, Filename: "grid.go", Description: "Some amazing code !"}
-
-	pdf.SetXY(5, 10)
-	pdf.Rect(2, 10, 50, 15, "D")
-	pdf.AddAttachmentAnnotation(&a, 2, 10, 50, 15)
-	pdf.Cell(50, 15, "A first link")
-
-	pdf.SetXY(5, 80)
-	pdf.Rect(2, 80, 50, 15, "D")
-	pdf.AddAttachmentAnnotation(&a, 2, 80, 50, 15)
-	pdf.Cell(50, 15, "A second link (no copy)")
-
-	fileStr := example.Filename("Fpdf_FileAnnotations")
-	err = pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_FileAnnotations.pdf
-}
-
-func ExampleFpdf_SetModificationDate() {
-	// pdfinfo (from http://www.xpdfreader.com) reports the following for this example :
-	// ~ pdfinfo -box pdf/Fpdf_PageBox.pdf
-	// Producer:       FPDF 1.7
-	// CreationDate:   Sat Jan  1 00:00:00 2000
-	// ModDate:        Sun Jan  2 10:22:30 2000
-	pdf := gofpdf.New("", "", "", "")
-	pdf.AddPage()
-	pdf.SetModificationDate(time.Date(2000, 1, 2, 10, 22, 30, 0, time.UTC))
-	fileStr := example.Filename("Fpdf_SetModificationDate")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_SetModificationDate.pdf
 }

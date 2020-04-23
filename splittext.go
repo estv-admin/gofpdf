@@ -26,7 +26,8 @@ func (f *Fpdf) SplitText(txt string, w float64) (lines []string) {
 	for i < nb {
 		c := s[i]
 		l += cw[c]
-		if unicode.IsSpace(c) || isChinese(c) {
+		if unicode.IsSpace(c) {
+			// if c == ' ' || c == '\t' || c == '\n' {
 			sep = i
 		}
 		if c == '\n' || l > wmax {
